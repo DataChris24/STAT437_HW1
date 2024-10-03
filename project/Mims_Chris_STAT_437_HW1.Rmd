@@ -1,0 +1,158 @@
+---
+title: "STAT 437 Homework 1"
+author: "Christopher Mims"
+header-includes:
+   - \usepackage{bbm}
+   - \usepackage{amssymb}
+   - \usepackage{amsmath}
+   - \usepackage{graphicx,float}
+   - \usepackage{natbib}
+date: "1/20/2022"
+output: pdf_document
+---
+
+\newpage
+
+```{r setup, message = FALSE, warning = FALSE}
+library(knitr)
+library(tidyr)
+library(ggplot2)
+library(dplyr)
+library(nycflights13)
+opts_chunk$set(tidy.opts=list(width.cutoff=60),tidy=TRUE)
+```
+
+# Problem 1
+
+In order to make things easy, we will need to create a subset of the data where we filter out all but the information we will need to build our plots. We will use the `dplyr` package to obtain our subset. Once this has been created, then we can calculate the average `arr_delay` for each of the months.
+
+```{r subset_creation, message = FALSE, warning = FALSE}
+p1 <- select(flights, month, arr_delay, carrier, distance) %>%
+  filter(carrier %in% c("UA", "AA", "DL"), 
+         month %in% c(1:2, 6:8, 12),
+         distance > 700)
+```
+
+## Part A
+
+Below I will create a single plot containing the density plots for `arr_delay` for each of the 6 months, and using  `month` to determine the color. In order to do this, I must first convert `month` to a factor.
+
+```{r part1a, message = FALSE, warning = FALSE, fig.width= 7.5, fig.height= 4.5}
+`Month` <- as.factor(p1$month)
+p1a <- ggplot(p1, aes(x = arr_delay, color = `Month`)) +
+  geom_density() +
+  theme_bw()
+p1a
+```
+
+From this plot, it looks as though the average `arr_delay` across the 6 months are very similar and are near a value of zero.
+
+## Part B
+
+Below I will create a single plot containing a box plot for `arr_delay` for each `carrier` (there are 3).
+
+```{r part1b, message = FALSE, warning = FALSE}
+p1b <- ggplot(p1, aes(x = carrier, y = arr_delay)) +
+  geom_boxplot() +
+  stat_summary(fun = mean, geom = "point", shape = 9, size = 2, color = 'red') +
+  theme_bw()
+p1b
+```
+
+And in this plot we also see that the average `arr_delay` for each of the three carriers are very similar and that they lie near a value of zero. One other observation we can see from this plot is that 'UA' has fewer extreme outliers than 'AA' and 'DL'. To note, this plot is very compressed and any assumptions about the accuracy of the averages would not be precise. 
+
+\newpage
+
+## Part C
+
+Below I will create a pie chart showing the proportions of the chart representing each carriers share of the total number of observations. I will superimpose the values onto each section. Each section will also be distinguished by color.
+
+```{r part1c}
+# First perform the calculations
+p1c <- p1 %>% group_by(carrier) %>%
+  count() %>% ungroup() %>%
+  mutate(percentage = `n`/sum(`n`)) %>%
+  arrange(desc(carrier))
+p1c$labels <- scales::percent(p1c$percentage)
+
+# Create the pie chart
+Carriers <- as.factor(p1c$carrier)
+pie <- ggplot(p1c) +
+  geom_bar(aes(x = "", y = percentage, fill = Carriers), stat = 'identity', width = 1) +
+  coord_polar("y", start = 0) +
+  theme_void() + 
+  geom_text(aes(x = 1, y = cumsum(percentage) - percentage / 2, label = labels))
+pie
+```
+
+\newpage
+
+## Part D
+
+Below I will plot `arr_delay` against `distance` in a grid using `facet_grid` designated by `month` and `carrier`.
+
+```{r part1d, message = FALSE, warning = FALSE, fig.width= 7.5, fig.height= 8}
+# Build a base layer
+p1d <- ggplot(p1, aes(x = arr_delay, y = distance)) +
+  geom_point(size = 1, shape = 1) +
+  facet_grid(month ~ carrier)
+p1d
+```
+
+\newpage
+
+## Part E
+
+Below I will compute the sample average of `arr_delay`, as well as, the sample average of `distance`. These will be named `mean_arr_delay` and `mean_distance` respectively. Once these calculations are completed there will be two plots made. The first will plot `month` against `mean_arr_delay` with the shape based off of `carrier` and color based off of `mean_distance`. And the second plot is the same but adds on the annotation of the `carrier` label (which I colored the same as the point).
+
+```{r part1e, message = FALSE, warning = FALSE}
+# Create data frame with calculated mean values
+tmp <- na.omit(p1)
+p1e <- tmp %>% group_by(month, carrier) %>%
+  summarise(mean_arr_delay = mean(arr_delay),
+            mean_distance = mean(distance)) %>%
+  as.data.frame()
+
+# Create first plot
+`Month` <- as.factor(p1e$month)
+plt1 <- ggplot(p1e, aes(x = `Month`, y = mean_arr_delay)) + 
+  geom_point(aes(shape = carrier, color = mean_distance))
+plt1
+```
+
+\newpage
+
+```{r part1e-plot2}
+plt2 <- ggplot(p1e, aes(x = `Month`, y = mean_arr_delay)) + 
+  geom_point(aes(shape = carrier, color = mean_distance)) +
+  geom_text(aes(label = carrier, color = mean_distance), nudge_x = 0.25)
+plt2
+```
+
+# Problem 2
+
+In this problem I will use the `mpg` dataset within `ggplot2` to create a plot that plots `displ` against `hwy` and is faceted by `drv` and `cyl`. I will use color based off of `class` and shape based off of `trans`. First I need to select a subset of the data (not entirely mandatory but simplifies the process) and ensure `drv`, `cyl`, `class`, and `trans` have been converted into factors. This will allow for the plot to populate correctly.
+
+```{r part2, fig.width= 7.5, fig.height= 6}
+# Create subset
+p2 <- select(mpg, displ, hwy, drv, cyl, class, trans)
+
+# Convert `drv`, `cyl`, `class`, and `trans` to factors
+p2$drv <- as.factor(p2$drv)
+p2$cyl <- as.factor(p2$cyl)
+p2$class <- as.factor(p2$class)
+p2$trans <- as.factor(p2$trans)
+
+# Create plot
+p2plt <- ggplot(p2, aes(x = displ, y = hwy)) +
+  geom_point(aes(shape = trans, color = class)) +
+  scale_shape_manual(values = 1:length(unique(p2$trans))) +
+  facet_grid(drv ~ cyl) 
+p2plt
+```
+
+```{r sessionInfo, echo = FALSE}
+library(devtools)
+sessionInfo()
+```
+

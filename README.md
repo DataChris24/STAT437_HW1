@@ -6,11 +6,20 @@ This assignment's intended purpose was to become familiar with the basics of the
 I chose to create my own report style submission, rather than use the provided R markdown file and populate with my own code and answers.
 </div>
 
+## Table of Contents
+
+- [Built With](https://github.com/DataChris24/STAT437_HW1?tab=readme-ov-file#built-with)
+- [Getting Started](https://github.com/DataChris24/STAT437_HW1?tab=readme-ov-file#getting-started)
+- [Usage](https://github.com/DataChris24/STAT437_HW1?tab=readme-ov-file#usage)
+- [Contributing](https://github.com/DataChris24/STAT437_HW1?tab=readme-ov-file#contributing)
+- [Acknowledgements](https://github.com/DataChris24/STAT437_HW1?tab=readme-ov-file#acknowledgements)
+
 ## Built With
+
 - ![Static Badge](https://img.shields.io/badge/-4.1.1-blue?style=plastic&logo=r)
 
-<br>
-Docker compose and supporting files included for ease of use.
+
+Docker compose and supporting files included for the ability to run RStudio within a web browser without having to install RStudio locally.
 
 ## Getting Started
 

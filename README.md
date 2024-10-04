@@ -78,7 +78,7 @@ I have included the Docker container definition files to also show my ability to
 
 Since this is not an ongoing project, there will be no ability to contribute further to the project.
 
-For any suggestions or corrections that need to be made, please submit an issue [here](https://github.com/DataChris24/STAT437_Project1/issues).
+For any suggestions or corrections that need to be made, please submit an issue [here](https://github.com/DataChris24/STAT437_HW1/issues).
 
 ## Acknowledgements
 
